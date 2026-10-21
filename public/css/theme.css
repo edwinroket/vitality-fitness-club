@@ -1,0 +1,19 @@
+:root {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --accent: #2563eb; /* Azul eléctrico */
+  --accent-hover: #1d4ed8;
+  --card-bg: #1e293b;
+  --border-color: #334155;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-soft: #eff6ff;
+  --accent: #2563eb;
+  --bg: #f8faff;
+  --surface: #ffffff;
+  --border: #dbe4f5;
+  --text-main: #17212b;
+  --text-muted: #61708a;
+}

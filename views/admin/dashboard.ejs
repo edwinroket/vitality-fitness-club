@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración — Landing</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/theme.css">
+    <style>
+        .admin-nav-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
+            overflow-x: auto;
+        }
+        .admin-tab-btn {
+            background: none;
+            border: none;
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .admin-tab-btn:hover { background: #e2e8f0; color: var(--text-main); }
+        .admin-tab-btn.active { background: var(--accent); color: #fff; }
+        .tab-section { display: none; }
+        .tab-section.active { display: block; }
+        .editable-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: #f8fafc;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .editable-item:hover { border-color: var(--accent); background: #f0fdfa; }
+    </style>
+</head>
+<body style="background: #f1f5f9;">
+
+    <header class="site-header">
+        <div class="container header-inner">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <h1 style="font-size: 1.15rem; font-weight: 800;">Panel de Edición & Leads</h1>
+                <a href="/" target="_blank" style="font-size: 0.825rem; color: var(--accent); text-decoration: none; font-weight: 600;">Ver Landing ↗</a>
+            </div>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <span style="font-size: 0.85rem; color: var(--text-muted);">Admin: <strong><%= user.username %></strong></span>
+                <a href="/admin/logout" class="btn btn-danger" style="font-size: 0.75rem; padding: 0.35rem 0.7rem;">Cerrar Sesión</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" style="padding: 2rem 1.25rem 4rem 1.25rem; flex: 1;">
+
+        <!-- Selector de Pestañas -->
+        <nav class="admin-nav-tabs">
+            <button class="admin-tab-btn active" onclick="switchTab('tab-leads')">📥 Bandeja de Leads (<%= leads.length %>)</button>
+            <button class="admin-tab-btn" onclick="switchTab('tab-hero')">⚡ Hero & Textos</button>
+            <button class="admin-tab-btn" onclick="switchTab('tab-specialties')">📐 Especialidades</button>
+            <button class="admin-tab-btn" onclick="switchTab('tab-projects')">🏢 Proyectos / Casos</button>
+            <button class="admin-tab-btn" onclick="switchTab('tab-testimonials')">💬 Testimonios</button>
+            <button class="admin-tab-btn" onclick="switchTab('tab-requirements')">📋 Formulario (Dropdown)</button>
+        </nav>
+
+        <!-- PESTAÑA 1: BANDEJA DE LEADS -->
+        <section id="tab-leads" class="tab-section active">
+            <div class="panel">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                    <div>
+                        <h2 style="font-size: 1.15rem; font-weight: 800;">Bandeja de Prospectos</h2>
+                        <p style="font-size: 0.8rem; color: var(--text-muted);">Personas interesadas que completaron el formulario</p>
+                    </div>
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Contacto</th>
+                                <th>Empresa</th>
+                                <th>Requerimiento</th>
+                                <th>Mensaje</th>
+                                <th>Estado</th>
+                                <th style="text-align: right;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (leads.length === 0) { %>
+                                <tr>
+                                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 3rem;">No se han recibido consultas todavía.</td>
+                                </tr>
+                            <% } %>
+                            <% leads.forEach(lead => { %>
+                                <tr>
+                                    <td style="white-space: nowrap; font-size: 0.78rem; color: var(--text-muted);">
+                                        <%= lead.created_at.split(' ')[0] %>
+                                    </td>
+                                    <td>
+                                        <strong><%= lead.name %></strong><br>
+                                        <span style="font-size: 0.78rem; color: var(--text-muted);"><%= lead.email %></span><br>
+                                        <span style="font-size: 0.78rem; color: var(--accent); font-weight: 600;"><%= lead.phone %></span>
+                                    </td>
+                                    <td><%= lead.company || 'Particular' %></td>
+                                    <td>
+                                        <span style="background: #f1f5f9; padding: 0.25rem 0.5rem; border-radius: 6px; font-weight: 600; font-size: 0.78rem;">
+                                            <%= lead.requirement_type %>
+                                        </span>
+                                    </td>
+                                    <td style="font-size: 0.8rem; color: var(--text-muted); max-width: 220px;">
+                                        <%= lead.message || 'Sin detalles' %>
+                                    </td>
+                                    <td>
+                                        <span class="badge-status badge-<%= lead.status %>">
+                                            <%= lead.status.toUpperCase() %>
+                                        </span>
+                                    </td>
+                                    <td style="text-align: right; white-space: nowrap;">
+                                        <a href="https://wa.me/<%= lead.phone.replace(/\D/g, '') %>?text=Hola%20<%= encodeURIComponent(lead.name) %>,%20te%20escribimos%20de%20<%= encodeURIComponent(settings.business_name || 'nuestro equipo') %>%20respecto%20a%20tu%20consulta%20de%20<%= encodeURIComponent(lead.requirement_type) %>." target="_blank" class="btn btn-success" style="font-size: 0.72rem; padding: 0.25rem 0.55rem;">
+                                            WhatsApp
+                                        </a>
+                                        <a href="mailto:<%= lead.email %>?subject=Contacto%20<%= encodeURIComponent(settings.business_name || '') %>" class="btn btn-secondary" style="font-size: 0.72rem; padding: 0.25rem 0.55rem; margin-left: 0.2rem;">
+                                            Mail
+                                        </a>
+                                        <form action="/admin/leads/status/<%= lead.id %>" method="POST" style="display: inline; margin-left: 0.4rem;">
+                                            <select name="status" onchange="this.form.submit()" style="font-size: 0.72rem; padding: 0.2rem 0.4rem; border-radius: 4px; border: 1px solid var(--border);">
+                                                <option value="nuevo" <%= lead.status === 'nuevo' ? 'selected' : '' %>>Nuevo</option>
+                                                <option value="contactado" <%= lead.status === 'contactado' ? 'selected' : '' %>>Contactado</option>
+                                                <option value="cerrado" <%= lead.status === 'cerrado' ? 'selected' : '' %>>Cerrado</option>
+                                            </select>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- PESTAÑA 2: HERO & TEXTOS -->
+        <section id="tab-hero" class="tab-section">
+            <div class="panel" style="max-width: 850px; margin: 0 auto;">
+                <h2 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 1.25rem;">Textos del Hero, Métricas y Marca</h2>
+                <form action="/admin/settings" method="POST" enctype="multipart/form-data">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nombre de la Empresa</label>
+                            <input type="text" name="business_name" required value="<%= settings.business_name || '' %>" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Modo de Marca en Encabezado</label>
+                            <select name="brand_display" class="form-control">
+                                <option value="both" <%= settings.brand_display === 'both' ? 'selected' : '' %>>Mostrar Ambos (Logo + Nombre)</option>
+                                <option value="logo" <%= settings.brand_display === 'logo' ? 'selected' : '' %>>Solo Logo</option>
+                                <option value="name" <%= settings.brand_display === 'name' ? 'selected' : '' %>>Solo Nombre</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>WhatsApp de Contacto (ej: 56912345678)</label>
+                            <input type="text" name="whatsapp_number" required value="<%= settings.whatsapp_number || '' %>" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Correo Electrónico</label>
+                            <input type="email" name="contact_email" required value="<%= settings.contact_email || '' %>" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Subtítulo Superior del Hero (Eyebrow)</label>
+                        <input type="text" name="hero_eyebrow" value="<%= settings.hero_eyebrow || '' %>" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Título Principal del Hero</label>
+                        <input type="text" name="hero_title" value="<%= settings.hero_title || '' %>" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Bajada / Descripción del Hero</label>
+                        <textarea name="hero_subtitle" rows="2" class="form-control"><%= settings.hero_subtitle || '' %></textarea>
+                    </div>
+
+                    <h3 style="font-size: 0.95rem; margin: 1.5rem 0 0.5rem; font-weight: 700;">Botones y navegación</h3>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Botón del encabezado</label><input type="text" name="header_cta" value="<%= settings.header_cta || '' %>" class="form-control"></div>
+                        <div class="form-group"><label>Botón principal del hero</label><input type="text" name="hero_primary_cta" value="<%= settings.hero_primary_cta || '' %>" class="form-control"></div>
+                        <div class="form-group"><label>Botón secundario del hero</label><input type="text" name="hero_secondary_cta" value="<%= settings.hero_secondary_cta || '' %>" class="form-control"></div>
+                        <div class="form-group"><label>Botón del formulario</label><input type="text" name="form_submit_label" value="<%= settings.form_submit_label || '' %>" class="form-control"></div>
+                    </div>
+
+                    <h3 style="font-size: 0.95rem; margin: 1.5rem 0 0.5rem; font-weight: 700;">Textos de secciones</h3>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Menú de servicios</label><input type="text" name="services_nav_label" value="<%= settings.services_nav_label || '' %>" class="form-control"></div>
+                        <div class="form-group"><label>Menú de casos</label><input type="text" name="projects_nav_label" value="<%= settings.projects_nav_label || '' %>" class="form-control"></div>
+                        <div class="form-group"><label>Menú de testimonios</label><input type="text" name="testimonials_nav_label" value="<%= settings.testimonials_nav_label || '' %>" class="form-control"></div>
+                    </div>
+                    <div class="form-group"><label>Etiqueta, título y descripción de servicios</label><input type="text" name="services_eyebrow" value="<%= settings.services_eyebrow || '' %>" placeholder="Etiqueta" class="form-control"><input type="text" name="services_title" value="<%= settings.services_title || '' %>" placeholder="Título" class="form-control" style="margin-top:.4rem"><textarea name="services_description" rows="2" placeholder="Descripción" class="form-control" style="margin-top:.4rem"><%= settings.services_description || '' %></textarea></div>
+                    <div class="form-group"><label>Etiqueta, título y descripción de casos</label><input type="text" name="projects_eyebrow" value="<%= settings.projects_eyebrow || '' %>" placeholder="Etiqueta" class="form-control"><input type="text" name="projects_title" value="<%= settings.projects_title || '' %>" placeholder="Título" class="form-control" style="margin-top:.4rem"><textarea name="projects_description" rows="2" placeholder="Descripción" class="form-control" style="margin-top:.4rem"><%= settings.projects_description || '' %></textarea></div>
+                    <div class="form-grid"><div class="form-group"><label>Etiqueta de testimonios</label><input type="text" name="testimonials_eyebrow" value="<%= settings.testimonials_eyebrow || '' %>" class="form-control"></div><div class="form-group"><label>Título de testimonios</label><input type="text" name="testimonials_title" value="<%= settings.testimonials_title || '' %>" class="form-control"></div></div>
+                    <div class="form-group"><label>Descripción del pie de página</label><textarea name="footer_description" rows="2" class="form-control"><%= settings.footer_description || '' %></textarea></div>
+
+                    <!-- 3 Métricas de Impacto -->
+                    <h3 style="font-size: 0.95rem; margin: 1.5rem 0 0.5rem 0; font-weight: 700;">Contadores de Impacto (Social Proof)</h3>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                        <div>
+                            <input type="text" name="stat_1_num" placeholder="+45" value="<%= settings.stat_1_num || '' %>" class="form-control" style="font-weight: 700;">
+                            <input type="text" name="stat_1_label" placeholder="Proyectos" value="<%= settings.stat_1_label || '' %>" class="form-control" style="margin-top: 0.3rem; font-size: 0.8rem;">
+                        </div>
+                        <div>
+                            <input type="text" name="stat_2_num" placeholder="$12M+" value="<%= settings.stat_2_num || '' %>" class="form-control" style="font-weight: 700;">
+                            <input type="text" name="stat_2_label" placeholder="Capital" value="<%= settings.stat_2_label || '' %>" class="form-control" style="margin-top: 0.3rem; font-size: 0.8rem;">
+                        </div>
+                        <div>
+                            <input type="text" name="stat_3_num" placeholder="99%" value="<%= settings.stat_3_num || '' %>" class="form-control" style="font-weight: 700;">
+                            <input type="text" name="stat_3_label" placeholder="Clientes" value="<%= settings.stat_3_label || '' %>" class="form-control" style="margin-top: 0.3rem; font-size: 0.8rem;">
+                        </div>
+                    </div>
+
+                    <!-- Logo -->
+                    <div class="form-group" style="margin-top: 1.5rem;">
+                        <label>Logo Corporativo</label>
+                        <% if (settings.logo_url) { %>
+                            <div style="margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: space-between; background: #f8fafc; border: 1.5px solid var(--border); padding: 0.5rem 0.75rem; border-radius: 8px;">
+                                <img src="<%= settings.logo_url %>" alt="Logo actual" style="height: 38px; max-width: 120px; object-fit: contain;">
+                                <button type="submit" formaction="/admin/settings/delete-logo" formmethod="POST" class="btn btn-danger" style="font-size: 0.72rem; padding: 0.25rem 0.55rem;" onclick="return confirm('¿Quitar logo?');">Quitar</button>
+                            </div>
+                        <% } %>
+                        <input type="file" name="logo" accept="image/*" class="form-control">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="margin-top: 1rem; width: 100%;">Guardar Todo</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- PESTAÑA 3: ESPECIALIDADES -->
+        <section id="tab-specialties" class="tab-section">
+            <div style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 1.5rem;">
+                <div class="panel">
+                    <h2 id="spec-form-title" style="font-size: 1.05rem; font-weight: 800; margin-bottom: 1rem;">Agregar Especialidad</h2>
+                    <form id="spec-form" action="/admin/specialties" method="POST">
+                        <div class="form-group">
+                            <label>Ícono (Emoji)</label>
+                            <input type="text" name="icon" id="spec-icon" required value="📐" class="form-control" style="font-size: 1.25rem; width: 80px;">
+                        </div>
+                        <div class="form-group">
+                            <label>Título de la Especialidad</label>
+                            <input type="text" name="title" id="spec-title" required placeholder="Ej: Gestión de Obras" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Descripción corta</label>
+                            <textarea name="description" id="spec-desc" rows="3" required placeholder="Resumen de capacidades..." class="form-control"></textarea>
+                        </div>
+                        <button type="submit" id="spec-submit-btn" class="btn btn-primary btn-block">+ Agregar</button>
+                        <button type="button" id="spec-cancel-btn" onclick="cancelSpecEdit()" class="btn btn-secondary btn-block" style="display: none; margin-top: 0.4rem;">Cancelar Edición</button>
+                    </form>
+                </div>
+
+                <div class="panel">
+                    <h2 style="font-size: 1.05rem; font-weight: 800; margin-bottom: 1rem;">Especialidades Publicadas</h2>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <% specialties.forEach(sp => { %>
+                            <div class="editable-item <%= sp.is_active ? '' : 'opacity: 0.5;' %>" onclick="editSpec('<%= sp.id %>', '<%= sp.icon %>', '<%= sp.title %>', '<%= sp.description %>')">
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <span style="font-size: 1.5rem;"><%= sp.icon %></span>
+                                    <div>
+                                        <strong><%= sp.title %></strong>
+                                        <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0;"><%= sp.description.slice(0, 70) %>...</p>
+                                    </div>
+                                </div>
+                                <form action="/admin/specialties/toggle/<%= sp.id %>" method="POST" style="margin: 0;" onclick="event.stopPropagation();">
+                                    <button type="submit" class="btn <%= sp.is_active ? 'btn-secondary' : 'btn-success' %>" style="font-size: 0.72rem; padding: 0.25rem 0.55rem;">
+                                        <%= sp.is_active ? 'Ocultar' : 'Mostrar' %>
+                                    </button>
+                                </form>
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PESTAÑA 4: PROYECTOS / CASOS -->
+        <section id="tab-projects" class="tab-section">
+            <div style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 1.5rem;">
+                <div class="panel">
+                    <h2 id="proj-form-title" style="font-size: 1.05rem; font-weight: 800; margin-bottom: 1rem;">Agregar Proyecto / Caso</h2>
+                    <form id="proj-form" action="/admin/projects" method="POST" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label>Nombre de la Obra o Proyecto</label>
+                            <input type="text" name="title" id="proj-title" required placeholder="Ej: Torre Mirador" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Categoría</label>
+                            <input type="text" name="category" id="proj-cat" required placeholder="Ej: Residencial" class="form-control">
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Estado</label>
+                                <select name="status_label" id="proj-status" class="form-control">
+                                    <option value="Entregado">Entregado</option>
+                                    <option value="En Construcción">En Construcción</option>
+                                    <option value="En Planificación">En Planificación</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Ubicación</label>
+                                <input type="text" name="location" id="proj-loc" placeholder="Ej: Santiago, Chile" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Superficie o Metraje</label>
+                            <input type="text" name="surface_area" id="proj-surf" placeholder="Ej: 8.400 m²" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Resumen de la Obra</label>
+                            <textarea name="summary" id="proj-sum" rows="2" required placeholder="Breve detalle técnico..." class="form-control"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Imagen del Proyecto (Opcional)</label>
+                            <input type="file" name="image" accept="image/*" class="form-control">
+                        </div>
+                        <button type="submit" id="proj-submit-btn" class="btn btn-primary btn-block">+ Agregar Obra</button>
+                        <button type="button" id="proj-cancel-btn" onclick="cancelProjEdit()" class="btn btn-secondary btn-block" style="display: none; margin-top: 0.4rem;">Cancelar Edición</button>
+                    </form>
+                </div>
+
+                <div class="panel">
+                    <h2 style="font-size: 1.05rem; font-weight: 800; margin-bottom: 1rem;">Obras Registradas</h2>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <% projects.forEach(p => { %>
+                            <div class="editable-item <%= p.is_active ? '' : 'opacity: 0.5;' %>" onclick="editProject('<%= p.id %>', '<%= p.title %>', '<%= p.category %>', '<%= p.status_label %>', '<%= p.location %>', '<%= p.surface_area %>', '<%= p.summary %>')">
+                                <div>
+                                    <strong style="font-size: 0.95rem;"><%= p.title %></strong>
+                                    <span style="font-size: 0.75rem; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; margin-left: 0.4rem;"><%= p.status_label %></span>
+                                    <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0.2rem 0 0 0;"><%= p.category %> • <%= p.location %></p>
+                                </div>
+                                <form action="/admin/projects/toggle/<%= p.id %>" method="POST" style="margin: 0;" onclick="event.stopPropagation();">
+                                    <button type="submit" class="btn <%= p.is_active ? 'btn-secondary' : 'btn-success' %>" style="font-size: 0.72rem; padding: 0.25rem 0.55rem;">
+                                        <%= p.is_active ? 'Ocultar' : 'Mostrar' %>
+                                    </button>
+                                </form>
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PESTAÑA 5: TESTIMONIOS -->
+        <section id="tab-testimonials" class="tab-section">
+            <div style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 1.5rem;">
+                <div class="panel">
+                    <h2 id="testi-form-title" style="font-size: 1.05rem; font-weight: 800; margin-bottom: 1rem;">Agregar Testimonio</h2>
+                    <form id="testi-form" action="/admin/testimonials" method="POST">
+                        <div class="form-group">
+                            <label>Nombre del Cliente</label>
+                            <input type="text" name="author_name" id="testi-name" required placeholder="Ej: Matías Santander" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Cargo y Empresa</label>
+                            <input type="text" name="author_role" id="testi-role" required placeholder="Ej: Gerente de Operaciones, Inmobiliaria Norte" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Iniciales (Avatar)</label>
+                            <input type="text" name="initials" id="testi-init" placeholder="MS" maxlength="3" class="form-control" style="width: 80px;">
+                        </div>
+                        <div class="form-group">
+                            <label>Declaración / Cita</label>
+                            <textarea name="quote" id="testi-quote" rows="3" required placeholder="Lo que dijo de tu servicio..." class="form-control"></textarea>
+                        </div>
+                        <button type="submit" id="testi-submit-btn" class="btn btn-primary btn-block">+ Agregar Testimonio</button>
+                        <button type="button" id="testi-cancel-btn" onclick="cancelTestiEdit()" class="btn btn-secondary btn-block" style="display: none; margin-top: 0.4rem;">Cancelar Edición</button>
+                    </form>
+                </div>
+
+                <div class="panel">
+                    <h2 style="font-size: 1.05rem; font-weight: 800; margin-bottom: 1rem;">Testimonios Publicados</h2>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <% testimonials.forEach(t => { %>
+                            <div class="editable-item <%= t.is_active ? '' : 'opacity: 0.5;' %>" onclick="editTestimonial('<%= t.id %>', '<%= t.author_name %>', '<%= t.author_role %>', '<%= t.initials %>', '<%= t.quote %>')">
+                                <div>
+                                    <strong><%= t.author_name %></strong>
+                                    <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;"><%= t.author_role %></p>
+                                </div>
+                                <form action="/admin/testimonials/toggle/<%= t.id %>" method="POST" style="margin: 0;" onclick="event.stopPropagation();">
+                                    <button type="submit" class="btn <%= t.is_active ? 'btn-secondary' : 'btn-success' %>" style="font-size: 0.72rem; padding: 0.25rem 0.55rem;">
+                                        <%= t.is_active ? 'Ocultar' : 'Mostrar' %>
+                                    </button>
+                                </form>
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PESTAÑA 6: DROPDOWN REQUERIMIENTOS -->
+        <section id="tab-requirements" class="tab-section">
+            <div class="panel" style="max-width: 650px; margin: 0 auto;">
+                <h2 style="font-size: 1.05rem; font-weight: 800; margin-bottom: 1rem;">Opciones del selector "Tipo de Requerimiento"</h2>
+                <form id="req-form" action="/admin/requirements" method="POST" style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem;">
+                    <input type="text" name="name" id="req-name" placeholder="Nueva opción para el cliente..." required class="form-control">
+                    <button type="submit" id="req-btn" class="btn btn-primary" style="white-space: nowrap;">+ Agregar</button>
+                </form>
+
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <% requirementTypes.forEach(r => { %>
+                        <div class="editable-item <%= r.is_active ? '' : 'opacity: 0.5;' %>">
+                            <strong><%= r.name %></strong>
+                            <form action="/admin/requirements/toggle/<%= r.id %>" method="POST" style="margin: 0;">
+                                <button type="submit" class="btn <%= r.is_active ? 'btn-secondary' : 'btn-success' %>" style="font-size: 0.72rem; padding: 0.25rem 0.55rem;">
+                                    <%= r.is_active ? 'Deshabilitar' : 'Activar' %>
+                                </button>
+                            </form>
+                        </div>
+                    <% }) %>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- JS de Navegación por Pestañas y Edición Inmediata -->
+    <script>
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Edición Especialidades
+        function editSpec(id, icon, title, desc) {
+            document.getElementById('spec-icon').value = icon;
+            document.getElementById('spec-title').value = title;
+            document.getElementById('spec-desc').value = desc;
+
+            const form = document.getElementById('spec-form');
+            form.action = `/admin/specialties/update/${id}`;
+            document.getElementById('spec-form-title').innerText = 'Editar Especialidad';
+            document.getElementById('spec-submit-btn').innerText = 'Guardar Cambios';
+            document.getElementById('spec-cancel-btn').style.display = 'block';
+        }
+
+        function cancelSpecEdit() {
+            document.getElementById('spec-form').action = '/admin/specialties';
+            document.getElementById('spec-form-title').innerText = 'Agregar Especialidad';
+            document.getElementById('spec-submit-btn').innerText = '+ Agregar';
+            document.getElementById('spec-cancel-btn').style.display = 'none';
+            document.getElementById('spec-title').value = '';
+            document.getElementById('spec-desc').value = '';
+        }
+
+        // Edición Proyectos
+        function editProject(id, title, cat, status, loc, surf, sum) {
+            document.getElementById('proj-title').value = title;
+            document.getElementById('proj-cat').value = cat;
+            document.getElementById('proj-status').value = status;
+            document.getElementById('proj-loc').value = loc;
+            document.getElementById('proj-surf').value = surf;
+            document.getElementById('proj-sum').value = sum;
+
+            const form = document.getElementById('proj-form');
+            form.action = `/admin/projects/update/${id}`;
+            document.getElementById('proj-form-title').innerText = 'Editar Proyecto';
+            document.getElementById('proj-submit-btn').innerText = 'Guardar Cambios';
+            document.getElementById('proj-cancel-btn').style.display = 'block';
+        }
+
+        function cancelProjEdit() {
+            document.getElementById('proj-form').action = '/admin/projects';
+            document.getElementById('proj-form-title').innerText = 'Agregar Proyecto / Caso';
+            document.getElementById('proj-submit-btn').innerText = '+ Agregar Obra';
+            document.getElementById('proj-cancel-btn').style.display = 'none';
+            document.getElementById('proj-title').value = '';
+            document.getElementById('proj-cat').value = '';
+            document.getElementById('proj-loc').value = '';
+            document.getElementById('proj-surf').value = '';
+            document.getElementById('proj-sum').value = '';
+        }
+
+        // Edición Testimonios
+        function editTestimonial(id, name, role, init, quote) {
+            document.getElementById('testi-name').value = name;
+            document.getElementById('testi-role').value = role;
+            document.getElementById('testi-init').value = init;
+            document.getElementById('testi-quote').value = quote;
+
+            const form = document.getElementById('testi-form');
+            form.action = `/admin/testimonials/update/${id}`;
+            document.getElementById('testi-form-title').innerText = 'Editar Testimonio';
+            document.getElementById('testi-submit-btn').innerText = 'Guardar Cambios';
+            document.getElementById('testi-cancel-btn').style.display = 'block';
+        }
+
+        function cancelTestiEdit() {
+            document.getElementById('testi-form').action = '/admin/testimonials';
+            document.getElementById('testi-form-title').innerText = 'Agregar Testimonio';
+            document.getElementById('testi-submit-btn').innerText = '+ Agregar Testimonio';
+            document.getElementById('testi-cancel-btn').style.display = 'none';
+            document.getElementById('testi-name').value = '';
+            document.getElementById('testi-role').value = '';
+            document.getElementById('testi-init').value = '';
+            document.getElementById('testi-quote').value = '';
+        }
+    </script>
+</body>
+</html>
